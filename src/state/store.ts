@@ -4,7 +4,7 @@ import storage from 'reduxjs-toolkit-persist/lib/storage'
 import autoMergeLevel1 from 'reduxjs-toolkit-persist/lib/stateReconciler/autoMergeLevel1'
 import logger from 'redux-logger'
 
-import countReducer from './reducers/count'
+import sheet from './reducers/sheet'
 import app from './reducers/app'
 
 const persistConfig = {
@@ -16,8 +16,10 @@ const persistConfig = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const reducers: any = combineReducers({
   app,
-  count: countReducer,
+  sheet,
 })
+
+export type RootState = ReturnType<typeof store.getState>
 
 const _persistedReducer = persistReducer(persistConfig, reducers)
 
