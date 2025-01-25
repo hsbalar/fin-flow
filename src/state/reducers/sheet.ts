@@ -17,6 +17,7 @@ export interface Sheet {
   name: string
   description: string
   columns: Array<Column>
+  isMulti: boolean
 }
 
 export interface RecordBySheet {
@@ -46,7 +47,12 @@ const slice = createSlice({
       state.activeSheet = sheet
     },
     addSheet: (state: SheetState, action) => {
-      state.sheets.push({ id: getUniqueId(), columns: [], ...action.payload })
+      const id = getUniqueId()
+      state.sheets.push({ id, columns: [], ...action.payload })
+      state.records[id] = {}
+      if (!action.payload.isMulti) {
+        state.records[id].default = []
+      }
     },
     updateSheet: (state: SheetState, action) => {
       const sheet = state.sheets.find((_, index) => index === action.payload.index)
@@ -55,12 +61,42 @@ const slice = createSlice({
         sheet.description = action.payload.description
       }
     },
-    updateRecord: (state: SheetState) => {
-      console.log('updateRecord', state)
+    updateSheetWithSingleColumn: (state: SheetState, action) => {
+      const sheet = state.sheets.find((_, index) => index === action.payload.index)
+      if (sheet) {
+        sheet.columns.push(action.payload.column)
+      }
+    },
+    updateRecord: (state: SheetState, action) => {
+      const { index, data } = action.payload
+      if (state.activeSheet) {
+        const sheetId = state.activeSheet.id
+        if (state.records[sheetId] && state.records[sheetId].default) {
+          state.records[sheetId].default[index] = { ...state.records[sheetId].default[index], ...data }
+        }
+      }
+    },
+    addRecord: (state: SheetState, action) => {
+      if (state.activeSheet) {
+        const {id} = state.activeSheet
+        if (!state.activeSheet.isMulti) {
+          state.records[id].default.push(action.payload)
+        }
+      }
+      
+    },
+    deleteRecord: (state: SheetState, action) => {
+      const { index } = action.payload
+      if (state.activeSheet) {
+        const sheetId = state.activeSheet.id
+        if (state.records[sheetId] && state.records[sheetId].default) {
+          state.records[sheetId].default.splice(index, 1)
+        }
+      }
     },
   },
 })
 
-export const { addSheet, updateSheet, setActiveSheet } = slice.actions
+export const { addSheet, updateSheet, setActiveSheet, addRecord, updateRecord, deleteRecord } = slice.actions
 
 export default slice.reducer

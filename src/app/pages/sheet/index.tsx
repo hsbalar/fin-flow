@@ -1,7 +1,7 @@
-import SheetWithDefaultTable from './components/SheetWithDefaultTable'
+import DefaultMode from './default-mode'
 
 const Sheet = () => {
-  return <SheetWithDefaultTable />
+  return <DefaultMode />
 }
 
 export default Sheet

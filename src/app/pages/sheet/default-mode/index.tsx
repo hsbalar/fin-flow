@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
-import { columns } from './default-mode/columns'
-import { DataTable } from './default-mode/data-table'
+import { columns } from './columns'
+import { DataTable } from './data-table'
 import { RootState } from '@/state/store'
 
 export default function DemoPage() {

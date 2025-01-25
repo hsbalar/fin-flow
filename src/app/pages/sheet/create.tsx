@@ -22,7 +22,7 @@ const CreateSheet = () => {
     setDescription(e.target.value)
   }
   const handleSave = () => {
-    dispatch(addSheet({ name, description }))
+    dispatch(addSheet({ name, description, isMulti: false }))
   }
   return (
     <Dialog open={dialog.createSheet} onOpenChange={() => dispatch(toggleDialog('createSheet'))}>
