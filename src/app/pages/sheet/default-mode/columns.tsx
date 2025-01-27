@@ -21,15 +21,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import CreateRow from './create-row'
 import { deleteRecord } from '@/state/reducers/sheet'
 
-export type Column = {
-  id: string
-  amount: number
-  name: string
-  date: string
-}
+import { Column } from '../../model'
+import CreateRow from './create-row'
 
 export const columns: ColumnDef<Column>[] = [
   {

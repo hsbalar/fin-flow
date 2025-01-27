@@ -6,8 +6,8 @@ import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
 import { Provider } from 'react-redux'
 import { store, persistor } from './state/store'
 import Dashboard from './app/components/Dashboard'
-import Sheet from './app/pages/sheet'
-import CreateSheetDialog from './app/pages/sheet/create'
+import Sheet from './app/pages/sheet/multi-mode'
+import CreateSheetDialog from './app/pages/sheet/create-sheet'
 
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

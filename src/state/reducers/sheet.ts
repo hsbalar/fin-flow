@@ -1,5 +1,5 @@
 import { getUniqueId } from '@/lib/utils'
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface Record {
   name: string
@@ -48,10 +48,13 @@ const slice = createSlice({
     },
     addSheet: (state: SheetState, action) => {
       const id = getUniqueId()
-      state.sheets.push({ id, columns: [], ...action.payload })
-      state.records[id] = {}
-      if (!action.payload.isMulti) {
-        state.records[id].default = []
+      const columnId = getUniqueId()
+      state.sheets.push({ id, columns: [{ id: columnId, name: 'Column 1' }], ...action.payload })
+      state.records[id] = {
+        [columnId]: [{
+          name: '',
+          value: 0,
+          date: '',}]
       }
     },
     updateSheet: (state: SheetState, action) => {
@@ -71,19 +74,21 @@ const slice = createSlice({
       const { index, data } = action.payload
       if (state.activeSheet) {
         const sheetId = state.activeSheet.id
-        if (state.records[sheetId] && state.records[sheetId].default) {
-          state.records[sheetId].default[index] = { ...state.records[sheetId].default[index], ...data }
+        if (state.records[sheetId] && state.records[sheetId][data.columnId]) {
+          state.records[sheetId][data.columnId][index] = { ...state.records[sheetId][data.columnId][index], ...data }
         }
       }
     },
     addRecord: (state: SheetState, action) => {
       if (state.activeSheet) {
-        const {id} = state.activeSheet
+        const { id } = state.activeSheet
         if (!state.activeSheet.isMulti) {
           state.records[id].default.push(action.payload)
+        } else {
+          const columnId = action.payload.columnId
+          state.records[id][columnId].push(action.payload)
         }
       }
-      
     },
     deleteRecord: (state: SheetState, action) => {
       const { index } = action.payload
@@ -94,9 +99,17 @@ const slice = createSlice({
         }
       }
     },
+    addColumn: (state: SheetState, action: PayloadAction<{ sheetId: string, column: Column }>) => {
+      const { sheetId, column } = action.payload
+      const sheet = state.sheets.find(s => s.id === sheetId)
+      if (sheet) {
+        sheet.columns.push(column)
+        state.records[sheetId][column.id] = []
+      }
+    },
   },
 })
 
-export const { addSheet, updateSheet, setActiveSheet, addRecord, updateRecord, deleteRecord } = slice.actions
+export const { addSheet, updateSheet, setActiveSheet, addRecord, updateRecord, deleteRecord, addColumn } = slice.actions
 
 export default slice.reducer

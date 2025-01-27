@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label'
 import { toggleDialog } from '@/state/reducers/app'
 import { RootState } from '@/state/store'
 import { addSheet } from '@/state/reducers/sheet'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const CreateSheet = () => {
   const { dialog } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [isMulti, setMulti] = useState(false)
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
   }
@@ -22,7 +24,8 @@ const CreateSheet = () => {
     setDescription(e.target.value)
   }
   const handleSave = () => {
-    dispatch(addSheet({ name, description, isMulti: false }))
+    dispatch(addSheet({ name, description, isMulti }))
+    dispatch(toggleDialog('createSheet'))
   }
   return (
     <Dialog open={dialog.createSheet} onOpenChange={() => dispatch(toggleDialog('createSheet'))}>
@@ -43,6 +46,15 @@ const CreateSheet = () => {
               Description
             </Label>
             <Input id="username" value={description} className="col-span-3" onChange={handleDescriptionChange} />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="terms" className="col-span-3">
+            <Checkbox
+              id="terms"
+              checked={isMulti}
+              onCheckedChange={(checked) => setMulti(checked as boolean)}
+            />&nbsp;&nbsp;Multi Column
+            </Label>
           </div>
         </div>
         <DialogFooter>
