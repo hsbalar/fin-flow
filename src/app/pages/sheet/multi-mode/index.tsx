@@ -1,12 +1,13 @@
 import { useSelector, useDispatch } from 'react-redux'
-import DataTable from './data-table'
+import { Plus } from 'lucide-react'
 import { RootState } from '@/state/store'
-import { Column } from '../../model'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
 import { addColumn } from '@/state/reducers/sheet'
 import { getUniqueId } from '@/lib/utils'
+
+import DataTable from './data-table'
+import { Column } from '../../model'
 
 export default function MultiMode() {
   const dispatch = useDispatch()
@@ -46,7 +47,7 @@ export default function MultiMode() {
         </TabsList>
         {columns.map((column: Column) => (
           <TabsContent key={column.id} value={column.id}>
-            <DataTable data={records[id][column.id] || []} info={column} />
+            <DataTable data={records[id][column.id] || []} columnId={column.id} sheetId={id} />
           </TabsContent>
         ))}
       </Tabs>

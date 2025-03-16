@@ -71,13 +71,8 @@ const slice = createSlice({
       }
     },
     updateRecord: (state: SheetState, action) => {
-      const { index, data } = action.payload
-      if (state.activeSheet) {
-        const sheetId = state.activeSheet.id
-        if (state.records[sheetId] && state.records[sheetId][data.columnId]) {
-          state.records[sheetId][data.columnId][index] = { ...state.records[sheetId][data.columnId][index], ...data }
-        }
-      }
+      const { sheetId, columnId, index, data } = action.payload
+      state.records[sheetId][columnId][index] = { ...state.records[sheetId][columnId][index], ...data }
     },
     addRecord: (state: SheetState, action) => {
       if (state.activeSheet) {
@@ -86,7 +81,11 @@ const slice = createSlice({
           state.records[id].default.push(action.payload)
         } else {
           const columnId = action.payload.columnId
-          state.records[id][columnId].push(action.payload)
+          state.records[id][columnId].push({
+            name: '',
+            value: 0,
+            date: '',
+          })
         }
       }
     },

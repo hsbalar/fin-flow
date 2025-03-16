@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useEffect } from 'react'
 import {
   Column,
   Table as TableInstance,
@@ -9,6 +9,7 @@ import {
   flexRender,
   RowData,
 } from '@tanstack/react-table'
+import { useDispatch } from 'react-redux'
 
 import {
   Table,
@@ -18,11 +19,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { updateRecord, addRecord } from '@/state/reducers/sheet'
 import { Column as MultiColumn } from '../../model'
 
 declare module '@tanstack/react-table' {
   interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, columnId: string, value: unknown) => void
+    updateData: (index: number, columnId: string, value: unknown) => void
   }
 }
 
@@ -54,7 +56,10 @@ const defaultColumn: Partial<ColumnDef<any>> = {
   },
 }
 
-function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
+const DataTable = ({data, columnId, sheetId}: {data: RowData[], columnId: string, sheetId: string}) => {
+  const dispatch = useDispatch()
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const columns = useMemo<ColumnDef<MultiColumn>[]>(
     () => [
       {
@@ -62,6 +67,31 @@ function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
         id: 'name',
         header: () => <span>Name</span>,
         footer: props => props.column.id,
+        cell: ({ getValue, row: { index }, column: { id }, table }) => {
+          const initialValue = getValue()
+          // We need to keep and update the state of the cell normally
+          const [value, setValue] = React.useState(initialValue)
+
+          // When the input is blurred, we'll call our table meta's updateData function
+          const onBlur = () => {
+            table.options.meta?.updateData(index, id, value)
+          }
+
+          // If the initialValue is changed external, sync it up with our state
+          React.useEffect(() => {
+            setValue(initialValue)
+          }, [initialValue])
+
+          return (
+            <input
+              ref={index === data.length - 1 ? inputRef : undefined}
+              value={value as string}
+              onChange={e => setValue(e.target.value)}
+              onBlur={onBlur}
+              className="w-full bg-transparent outline-none border-none p-1"
+            />
+          )
+        },
       },
       {
         accessorKey: 'amount',
@@ -69,7 +99,7 @@ function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
         footer: props => props.column.id,
       },
     ],
-    []
+    [data.length]
   )
 
   const table = useReactTable({
@@ -79,11 +109,24 @@ function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
-      updateData: (rowIndex, columnId, value) => {
-        console.log(rowIndex, columnId, value)  
+      updateData: (index: number, key: string, value: unknown) => {
+        dispatch(updateRecord({
+          sheetId,
+          columnId,
+          index,
+          data: { 
+            [key]: value
+          }
+        }))
       },
     },
   })
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [data.length])
 
   return (
     <div className="border rounded-md overflow-auto">
@@ -115,8 +158,19 @@ function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
             >
               {row.getVisibleCells().map(cell => (
                 <TableCell 
-                  key={cell.id} 
+                  key={`cell-${cell.column.id}-${row.id}`} 
                   className="border border-gray-200 p-1 h-10 min-w-[100px]"
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Tab' && 
+                      cell.column.id === table.getHeaderGroups()[0].headers[table.getHeaderGroups()[0].headers.length - 1].id && 
+                      row.index === table.getRowModel().rows.length - 1
+                    ) {
+                      e.preventDefault();
+                      dispatch(addRecord({ columnId }));
+                      inputRef.current?.focus();
+                    }
+                  }}
                 >
                   {flexRender(
                     cell.column.columnDef.cell,
@@ -126,15 +180,6 @@ function DataTable({data, info}: {data: RowData[], info: MultiColumn}) {
               ))}
             </TableRow>
           ))}
-          {/* Add an extra empty row to mimic Excel */}
-          <TableRow className="hover:bg-gray-50 border-b border-gray-200 last:border-b-0">
-            {table.getHeaderGroups()[0].headers.map(header => (
-              <TableCell 
-                key={`empty-${header.id}`} 
-                className="border border-gray-200 p-1 h-10 min-w-[100px]"
-              />
-            ))}
-          </TableRow>
         </TableBody>
       </Table>
     </div>
