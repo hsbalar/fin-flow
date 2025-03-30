@@ -1,13 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useDispatch } from 'react-redux'
 import { addRecord, updateRecord } from '@/state/reducers/sheet'
@@ -54,20 +48,22 @@ const CreateRow: React.FC<CreateRowProps> = ({ open, handleClose, mode = 'create
     if (mode === 'edit' && editData) {
       form.reset({
         name: editData.name,
-        amount: editData.amount,
+        amount: editData.amount ? Number(editData.amount) : '',
       })
     }
   }, [mode, editData, form])
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (mode === 'edit' && editData) {
-      dispatch(updateRecord({ 
-        index: editData.index, 
-        data: { 
-          ...values,
-          date 
-        } 
-      }))
+      dispatch(
+        updateRecord({
+          index: editData.index,
+          data: {
+            ...values,
+            date,
+          },
+        })
+      )
       handleClose()
     } else {
       dispatch(addRecord({ name: values.name, amount: values.amount || 0, date }))
@@ -109,11 +105,7 @@ const CreateRow: React.FC<CreateRowProps> = ({ open, handleClose, mode = 'create
                 <FormItem>
                   <FormLabel>Value</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      value={field.value}
-                    />
+                    <Input type="number" {...field} value={field.value} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,8 +113,8 @@ const CreateRow: React.FC<CreateRowProps> = ({ open, handleClose, mode = 'create
             />
             {mode === 'create' && (
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="terms" 
+                <Checkbox
+                  id="terms"
                   checked={addAnother}
                   onCheckedChange={(checked) => setAddAnother(checked as boolean)}
                 />
@@ -135,9 +127,7 @@ const CreateRow: React.FC<CreateRowProps> = ({ open, handleClose, mode = 'create
               </div>
             )}
             <DialogFooter>
-              <Button type="submit">
-                {mode === 'create' ? 'Submit' : 'Save changes'}
-              </Button>
+              <Button type="submit">{mode === 'create' ? 'Submit' : 'Save changes'}</Button>
             </DialogFooter>
           </form>
         </Form>

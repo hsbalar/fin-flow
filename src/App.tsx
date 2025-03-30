@@ -8,6 +8,7 @@ import { store, persistor } from './state/store'
 import Dashboard from './app/components/Dashboard'
 import Sheet from './app/pages/sheet/multi-mode'
 import CreateSheetDialog from './app/pages/sheet/create-sheet'
+import { CreateCategoryDialog } from './app/pages/category/create-category'
 
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,6 +24,7 @@ function App() {
           </Routes>
         </BrowserRouter>
         <CreateSheetDialog />
+        <CreateCategoryDialog />
       </PersistGate>
     </Provider>
   )
