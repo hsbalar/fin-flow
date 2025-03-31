@@ -14,6 +14,7 @@ export interface Column {
 
 export interface Sheet {
   id: string
+  categoryId: string
   name: string
   description: string
   columns: Array<Column>
@@ -51,10 +52,13 @@ const slice = createSlice({
       const columnId = getUniqueId()
       state.sheets.push({ id, columns: [{ id: columnId, name: 'Column 1' }], ...action.payload })
       state.records[id] = {
-        [columnId]: [{
-          name: '',
-          value: 0,
-          date: '',}]
+        [columnId]: [
+          {
+            name: '',
+            value: 0,
+            date: '',
+          },
+        ],
       }
     },
     updateSheet: (state: SheetState, action) => {
@@ -98,9 +102,9 @@ const slice = createSlice({
         }
       }
     },
-    addColumn: (state: SheetState, action: PayloadAction<{ sheetId: string, column: Column }>) => {
+    addColumn: (state: SheetState, action: PayloadAction<{ sheetId: string; column: Column }>) => {
       const { sheetId, column } = action.payload
-      const sheet = state.sheets.find(s => s.id === sheetId)
+      const sheet = state.sheets.find((s) => s.id === sheetId)
       if (sheet) {
         sheet.columns.push(column)
         state.records[sheetId][column.id] = []

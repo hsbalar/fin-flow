@@ -17,6 +17,10 @@ import { NavProjects } from '@/components/nav-projects'
 import { NavUser } from '@/components/nav-user'
 import { TeamSwitcher } from '@/components/team-switcher'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/state/store'
+import { Sheet } from '@/state/reducers/sheet'
+import { ICategory } from '@/state/reducers/app'
 
 // This is sample data.
 const data = {
@@ -149,13 +153,33 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const sheets = useSelector((state: RootState) => state.sheet.sheets)
+  const categories = useSelector((state: RootState) => state.app.categories)
+
+  const sheetByCategory: Record<string, Sheet[]> = {}
+  sheets.forEach((sheet: Sheet) => {
+    if (!sheetByCategory[sheet.categoryId]) {
+      sheetByCategory[sheet.categoryId] = []
+    }
+    sheetByCategory[sheet.categoryId].push(sheet)
+  })
+  const navMain = categories.map((category: ICategory) => {
+    return {
+      title: category.name,
+      url: `#`,
+      icon: null,
+      isActive: true,
+      items: sheetByCategory[category.id] || [],
+    }
+  })
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

@@ -33,7 +33,7 @@ const CreateSheet = () => {
     setDescription(e.target.value)
   }
   const handleSave = () => {
-    dispatch(addSheet({ name, description, isMulti, selectedCategory }))
+    dispatch(addSheet({ name, description, isMulti, categoryId: selectedCategory }))
     dispatch(toggleDialog('createSheet'))
   }
 
