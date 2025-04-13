@@ -1,51 +1,51 @@
 import * as React from 'react'
 import {
-  AudioWaveform,
   BookOpen,
   Bot,
-  Command,
+  ChevronsUpDown,
   Frame,
   GalleryVerticalEnd,
+  LifeBuoy,
   Map,
   PieChart,
+  Plus,
+  Send,
   Settings2,
   SquareTerminal,
 } from 'lucide-react'
 
 import { NavMain } from '@/components/nav-main'
 import { NavProjects } from '@/components/nav-projects'
+import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
-import { TeamSwitcher } from '@/components/team-switcher'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
-import { useSelector } from 'react-redux'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
+import { useDispatch, useSelector } from 'react-redux'
+import { ICategory, toggleDialog } from '@/state/reducers/app'
 import { RootState } from '@/state/store'
 import { Sheet } from '@/state/reducers/sheet'
-import { ICategory } from '@/state/reducers/app'
 
-// This is sample data.
 const data = {
   user: {
-    name: 'Hitesh',
-    email: 'hsbalar@example.com',
+    name: 'shadcn',
+    email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
   navMain: [
     {
       title: 'Playground',
@@ -133,6 +133,18 @@ const data = {
       ],
     },
   ],
+  navSecondary: [
+    {
+      title: 'Support',
+      url: '#',
+      icon: LifeBuoy,
+    },
+    {
+      title: 'Feedback',
+      url: '#',
+      icon: Send,
+    },
+  ],
   projects: [
     {
       name: 'Design Engineering',
@@ -155,6 +167,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const sheets = useSelector((state: RootState) => state.sheet.sheets)
   const categories = useSelector((state: RootState) => state.app.categories)
+  const { isMobile } = useSidebar()
+  const dispatch = useDispatch()
 
   const sheetByCategory: Record<string, Sheet[]> = {}
   sheets.forEach((sheet: Sheet) => {
@@ -163,29 +177,82 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
     sheetByCategory[sheet.categoryId].push(sheet)
   })
-  const navMain = categories.map((category: ICategory) => {
-    return {
-      title: category.name,
-      url: `#`,
-      icon: null,
-      isActive: true,
-      items: sheetByCategory[category.id] || [],
-    }
-  })
-
+  const navMain = categories.map((category: ICategory) => ({
+    name: category.name,
+    id: category.id,
+    icon: null,
+    isActive: true,
+    items: sheetByCategory[category.id] || [],
+  }))
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <TeamSwitcher />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {/* <SidebarMenuButton size="lg" asChild>
+              <a href="#">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <GalleryVerticalEnd className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">Fin Flows</span>
+                  <span className="truncate text-[0.600rem] text-muted-foreground">
+                    Your Finance, Always with You.
+                  </span>
+                </div>
+                <ChevronsUpDown className="ml-auto" />
+              </a>
+            </SidebarMenuButton> */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">Fin Flows</span>
+                    <span className="truncate text-[0.625rem] text-muted-foreground">
+                      Your Finances, Always with You.
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                align="start"
+                side={isMobile ? 'bottom' : 'right'}
+                sideOffset={4}
+              >
+                <DropdownMenuItem className="gap-2 p-2" onClick={() => dispatch(toggleDialog('createCategory'))}>
+                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="font-medium text-muted-foreground">Create Category</div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2 p-2" onClick={() => dispatch(toggleDialog('createSheet'))}>
+                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="font-medium text-muted-foreground">Add Sheet</div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
         <NavProjects projects={data.projects} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
