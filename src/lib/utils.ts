@@ -1,10 +1,12 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function getUniqueId() {
-  return 'xxxxxxxxxx'.replace(/[x]/g, () => ((Math.random() * 16) | 0).toString(16))
+  return "xxxxxxxxxx".replace(/[x]/g, () =>
+    ((Math.random() * 16) | 0).toString(16)
+  );
 }
