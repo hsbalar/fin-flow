@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState, useMemo, useId } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -31,6 +31,7 @@ import {
 import { ChevronDownIcon, ColumnsIcon, GripVerticalIcon, MoreVerticalIcon, PlusIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { addRecord, updateRecord } from '@/state/reducers/sheet'
+import { RootState } from '@/state/store'
 
 export const schema = z.object({
   id: z.number(),
@@ -85,17 +88,13 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     cell: ({ row }) => <DragHandle id={row.original.id} />,
   },
   {
-    accessorKey: 'header',
-    header: () => <div className="pl-3">Header</div>,
-    cell: ({ row }) => (
+    accessorKey: 'name',
+    header: () => <div>Header</div>,
+    cell: ({ row, table }) => (
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: 'Done',
-            error: 'Error',
-          })
+          console.log('Header changed', row)
         }}
       >
         <Label htmlFor={`${row.original.id}-header`} className="sr-only">
@@ -103,25 +102,23 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         </Label>
         <Input
           className="h-8 w-full min-w-[9.5rem] border-transparent bg-transparent shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-          defaultValue={row.original.header}
+          value={row.original.name}
           id={`${row.original.id}-header`}
+          onChange={(e) => {
+            table.options.meta?.updateData(row.index, 'name', e.target.value)
+          }}
         />
       </form>
     ),
     enableHiding: false,
   },
   {
-    accessorKey: 'limit',
-    header: () => <div className="w-full pl-28">Limit</div>,
-    cell: ({ row }) => (
+    accessorKey: 'value',
+    header: () => <div className="w-full">Amount</div>,
+    cell: ({ row, table }) => (
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: 'Done',
-            error: 'Error',
-          })
         }}
       >
         <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
@@ -129,8 +126,11 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         </Label>
         <Input
           className="h-8 w-38 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
-          defaultValue={row.original.limit}
+          value={row.original.value}
           id={`${row.original.id}-limit`}
+          onChange={(e) => {
+            table.options.meta?.updateData(row.index, 'value', e.target.value)
+          }}
         />
       </form>
     ),
@@ -186,20 +186,31 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   )
 }
 
-export function DataTable({ data: initialData }: { data: z.infer<typeof schema>[] }) {
-  const [data, setData] = React.useState(() => initialData)
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState({
+export function DataTable() {
+  const dispatch = useDispatch()
+  const { activeSheet, records } = useSelector((state: RootState) => state.sheet)
+  const columnId = activeSheet?.columns[0].id
+  const sheetId = activeSheet?.id
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    if (activeSheet && columnId && sheetId) {
+      setData(records[sheetId][columnId] || [])
+    }
+  }, [activeSheet, columnId, records, sheetId])
+
+  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   })
-  const sortableId = React.useId()
+  const sortableId = useId()
   const sensors = useSensors(useSensor(MouseSensor, {}), useSensor(TouchSensor, {}), useSensor(KeyboardSensor, {}))
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(() => data?.map(({ id }) => id) || [], [data])
+  const dataIds = useMemo<UniqueIdentifier[]>(() => data?.map(({ id }) => id) || [], [data])
 
   const table = useReactTable({
     data,
@@ -210,6 +221,21 @@ export function DataTable({ data: initialData }: { data: z.infer<typeof schema>[
       rowSelection,
       columnFilters,
       pagination,
+    },
+    meta: {
+      updateData: (index: unknown, key: string, value: unknown) => {
+        console.log(index, key, value)
+        dispatch(
+          updateRecord({
+            sheetId,
+            columnId,
+            index,
+            data: {
+              [key]: value,
+            },
+          })
+        )
+      },
     },
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
@@ -304,9 +330,9 @@ export function DataTable({ data: initialData }: { data: z.infer<typeof schema>[
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => dispatch(addRecord({ columnId }))}>
             <PlusIcon />
-            <span className="hidden lg:inline">Add Section</span>
+            <span className="hidden lg:inline">Add Record</span>
           </Button>
         </div>
       </div>

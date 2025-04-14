@@ -2,8 +2,9 @@ import { getUniqueId } from '@/lib/utils'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface Record {
+  id: string
   name: string
-  value: number
+  value: number | string
   date: string
 }
 
@@ -39,6 +40,15 @@ const defaultState: SheetState = {
   records: {},
 }
 
+const getNewRecord = () => {
+  return {
+    id: getUniqueId(),
+    name: '',
+    date: '',
+    value: '',
+  }
+}
+
 const slice = createSlice({
   name: 'sheet',
   initialState: defaultState,
@@ -52,13 +62,7 @@ const slice = createSlice({
       const columnId = getUniqueId()
       state.sheets.push({ id, columns: [{ id: columnId, name: 'Column 1' }], ...action.payload })
       state.records[id] = {
-        [columnId]: [
-          {
-            name: '',
-            value: 0,
-            date: '',
-          },
-        ],
+        [columnId]: [getNewRecord()],
       }
     },
     updateSheet: (state: SheetState, action) => {
@@ -78,19 +82,11 @@ const slice = createSlice({
       const { sheetId, columnId, index, data } = action.payload
       state.records[sheetId][columnId][index] = { ...state.records[sheetId][columnId][index], ...data }
     },
-    addRecord: (state: SheetState, action) => {
+    addRecord: (state: SheetState, action: PayloadAction<{ columnId?: string }>) => {
       if (state.activeSheet) {
         const { id } = state.activeSheet
-        if (!state.activeSheet.isMulti) {
-          state.records[id].default.push(action.payload)
-        } else {
-          const columnId = action.payload.columnId
-          state.records[id][columnId].push({
-            name: '',
-            value: 0,
-            date: '',
-          })
-        }
+        const columnId = action.payload.columnId || state.activeSheet.columns[0].id
+        state.records[id][columnId].push(getNewRecord())
       }
     },
     deleteRecord: (state: SheetState, action) => {
