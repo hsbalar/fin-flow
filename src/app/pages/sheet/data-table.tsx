@@ -29,7 +29,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ChevronDownIcon, ColumnsIcon, GripVerticalIcon, MoreVerticalIcon, PlusIcon } from 'lucide-react'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -53,12 +52,9 @@ import { RootState } from '@/state/store'
 
 export const schema = z.object({
   id: z.number(),
-  header: z.string(),
-  type: z.string(),
-  status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
+  name: z.string(),
+  value: z.string(),
+  date: z.string(),
 })
 
 // Create a separate component for the drag handle
@@ -90,7 +86,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: 'name',
     header: () => <div>Header</div>,
-    cell: ({ row, table }) => (
+    cell: ({ row, table }: any) => (
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -115,7 +111,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: 'value',
     header: () => <div className="w-full">Amount</div>,
-    cell: ({ row, table }) => (
+    cell: ({ row, table }: any) => (
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -224,7 +220,6 @@ export function DataTable() {
     },
     meta: {
       updateData: (index: unknown, key: string, value: unknown) => {
-        console.log(index, key, value)
         dispatch(
           updateRecord({
             sheetId,
@@ -280,7 +275,7 @@ export function DataTable() {
             <SelectItem value="focus-documents">Focus Documents</SelectItem>
           </SelectContent>
         </Select>
-        <TabsList className="@4xl/main:flex hidden">
+        {/* <TabsList className="@4xl/main:flex hidden">
           <TabsTrigger value="outline">Outline</TabsTrigger>
           <TabsTrigger value="past-performance" className="gap-1">
             Past Performance{' '}
@@ -301,9 +296,9 @@ export function DataTable() {
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="focus-documents">Focus Documents</TabsTrigger>
-        </TabsList>
+        </TabsList> */}
         <div className="flex items-center gap-2">
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <ColumnsIcon />
@@ -329,7 +324,7 @@ export function DataTable() {
                   )
                 })}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
           <Button variant="outline" size="sm" onClick={() => dispatch(addRecord({ columnId }))}>
             <PlusIcon />
             <span className="hidden lg:inline">Add Record</span>
