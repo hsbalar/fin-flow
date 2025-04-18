@@ -374,13 +374,13 @@ export function DataTable() {
             </Table>
           </DndContext>
         </div>
-        <div className="flex items-center justify-between px-4">
+        {/* <div className="flex items-center justify-between px-4">
           <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
             {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
             selected.
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit"></div>
-        </div>
+        </div> */}
       </TabsContent>
       <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>

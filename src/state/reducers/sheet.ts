@@ -19,7 +19,6 @@ export interface Sheet {
   name: string
   description: string
   columns: Array<Column>
-  isMulti: boolean
 }
 
 export interface RecordBySheet {
