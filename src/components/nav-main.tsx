@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { ChevronRight, LayoutDashboardIcon, type LucideIcon } from 'lucide-react'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
@@ -22,6 +22,7 @@ export function NavMain({
   items,
 }: {
   items: {
+    id: string
     name: string
     url: string
     icon: LucideIcon
@@ -38,10 +39,18 @@ export function NavMain({
   }
   return (
     <SidebarGroup>
+      <SidebarMenu>
+        <SidebarMenuItem onClick={() => navigate(`/`)}>
+          <SidebarMenuButton tooltip="Dashboard">
+            <LayoutDashboardIcon />
+            <span>Dashboard</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
       <SidebarGroupLabel>Category</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <Collapsible key={item.name} asChild defaultOpen={item.isActive}>
+          <Collapsible key={item.id} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.name}>
                 <span>{item.name}</span>

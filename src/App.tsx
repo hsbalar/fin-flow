@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
 
 import Layout from '@/app/components/Layout'
-import Dashboard from '@/app/components/Dashboard'
+import Dashboard from '@/app/pages/dashboard'
 import Sheet from '@/app/pages/sheet'
 import CreateSheetDialog from '@/app/pages/sheet/create-sheet'
 

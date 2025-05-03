@@ -50,6 +50,7 @@ const CreateSheet = () => {
   })
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    dispatch(toggleDialog('createSheet'))
     dispatch(
       addSheet({
         name: values.name,
@@ -57,11 +58,16 @@ const CreateSheet = () => {
         categoryId: values.category,
       })
     )
+    form.reset()
+  }
+
+  const handleClose = () => {
     dispatch(toggleDialog('createSheet'))
+    form.reset()
   }
 
   return (
-    <Dialog open={dialog.createSheet} onOpenChange={() => dispatch(toggleDialog('createSheet'))}>
+    <Dialog open={dialog.createSheet} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Sheet</DialogTitle>
