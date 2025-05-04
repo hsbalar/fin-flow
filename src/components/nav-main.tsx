@@ -39,14 +39,6 @@ export function NavMain({
   }
   return (
     <SidebarGroup>
-      <SidebarMenu>
-        <SidebarMenuItem onClick={() => navigate(`/`)}>
-          <SidebarMenuButton tooltip="Dashboard">
-            <LayoutDashboardIcon />
-            <span>Dashboard</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
       <SidebarGroupLabel>Category</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (

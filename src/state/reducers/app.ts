@@ -6,20 +6,28 @@ export interface ICategory {
   name: string
 }
 
+export interface IDashboard extends ICategory {}
+
 export interface AppState {
   dialog: {
+    createCard: boolean
     createSheet: boolean
     createCategory: boolean
+    createDashboard: boolean
   }
   categories: ICategory[]
+  dashboards: IDashboard[]
 }
 
 const defaultState: AppState = {
   dialog: {
+    createCard: false,
     createSheet: false,
     createCategory: false,
+    createDashboard: false,
   },
   categories: [],
+  dashboards: [],
 }
 
 const slice = createSlice({
@@ -35,9 +43,14 @@ const slice = createSlice({
       state.categories.push({ id, name: action.payload })
       state.dialog.createCategory = false
     },
+    createDashboard: (state: AppState, action) => {
+      const id = getUniqueId()
+      state.dashboards.push({ id, name: action.payload })
+      state.dialog.createDashboard = false
+    },
   },
 })
 
-export const { toggleDialog, createCategory } = slice.actions
+export const { toggleDialog, createCategory, createDashboard } = slice.actions
 
 export default slice.reducer

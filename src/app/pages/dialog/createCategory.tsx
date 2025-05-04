@@ -29,7 +29,7 @@ const formSchema = z.object({
     }),
 })
 
-export function CreateCategoryDialog() {
+function CreateCategoryDialog() {
   const { dialog } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
 
@@ -82,3 +82,5 @@ export function CreateCategoryDialog() {
     </Dialog>
   )
 }
+
+export default CreateCategoryDialog

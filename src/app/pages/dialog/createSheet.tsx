@@ -36,7 +36,7 @@ const formSchema = z.object({
   }),
 })
 
-const CreateSheet = () => {
+function CreateSheetDialog() {
   const { dialog, categories } = useSelector((state: RootState) => state.app)
   const dispatch = useDispatch()
 
@@ -134,4 +134,4 @@ const CreateSheet = () => {
   )
 }
 
-export default CreateSheet
+export default CreateSheetDialog
