@@ -1,11 +1,21 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'reduxjs-toolkit-persist'
+import {
+  persistReducer,
+  persistStore,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'reduxjs-toolkit-persist'
 import storage from 'reduxjs-toolkit-persist/lib/storage'
 import autoMergeLevel1 from 'reduxjs-toolkit-persist/lib/stateReconciler/autoMergeLevel1'
 import logger from 'redux-logger'
 
 import sheet from './reducers/sheet'
 import app from './reducers/app'
+import card from './reducers/card'
 
 const persistConfig = {
   key: 'root',
@@ -16,6 +26,7 @@ const persistConfig = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const reducers: any = combineReducers({
   app,
+  card,
   sheet,
 })
 
