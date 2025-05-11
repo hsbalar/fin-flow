@@ -41,7 +41,7 @@ function DashboardRenderer() {
     let data: any = []
     cardSheets.forEach((sheet: any) => {
       const sheetRecords = records[sheet.id] || {}
-      Object.entries(sheetRecords).forEach(([columnId, columnData]) => {
+      Object.entries(sheetRecords).forEach(([columnId, columnData]: any) => {
         data = [...data, ...columnData]
       })
     })
