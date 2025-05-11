@@ -3,10 +3,11 @@ import { getUniqueId } from '@/lib/utils'
 
 export interface Card {
   id: string
+  dashboardId?: string
   name: string
   type: 'Section' | 'Chart'
-  sheets: string[] // sheet IDs
-  dashboardId?: string
+  chartType?: 'Bar' | 'Pie'
+  sheets: string[]
 }
 
 export interface CardState {

@@ -15,6 +15,7 @@ export interface AppState {
     createCategory: boolean
     createDashboard: boolean
   }
+  activeDashboard: IDashboard | null
   categories: ICategory[]
   dashboards: IDashboard[]
 }
@@ -26,6 +27,7 @@ const defaultState: AppState = {
     createCategory: false,
     createDashboard: false,
   },
+  activeDashboard: null,
   categories: [],
   dashboards: [],
 }
@@ -37,6 +39,9 @@ const slice = createSlice({
     toggleDialog: (state: AppState, action) => {
       const { payload } = action as { payload: keyof AppState['dialog'] }
       state.dialog[payload] = !state.dialog[payload]
+    },
+    setActiveDashboard: (state: AppState, action) => {
+      state.activeDashboard = action.payload
     },
     createCategory: (state: AppState, action) => {
       const id = getUniqueId()
@@ -51,6 +56,6 @@ const slice = createSlice({
   },
 })
 
-export const { toggleDialog, createCategory, createDashboard } = slice.actions
+export const { toggleDialog, createCategory, createDashboard, setActiveDashboard } = slice.actions
 
 export default slice.reducer

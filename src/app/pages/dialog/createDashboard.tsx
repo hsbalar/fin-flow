@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -50,6 +51,14 @@ function CreateDashboardDialog() {
     dispatch(toggleDialog('createDashboard'))
     form.reset()
   }
+
+  useEffect(() => {
+    return () => {
+      setTimeout(() => {
+        document.body.style.removeProperty('pointer-events')
+      }, 500)
+    }
+  }, [])
 
   return (
     <Dialog open={dialog.createDashboard} onOpenChange={handleClose}>

@@ -1,38 +1,55 @@
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
+import { z } from 'zod'
+
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { RootState } from '@/state/store'
 import { ICategory, toggleDialog } from '@/state/reducers/app'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TreeSelect } from '@/app/components/tree-select/tree-select'
 import { createCard } from '@/state/reducers/card'
 
-// Define form validation schema
-const cardFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, { message: 'Card name must be at least 2 characters.' })
-    .refine((value) => value.replace(/\s/g, '').length > 0, {
-      message: 'Card name cannot be only whitespace.',
+const cardFormSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, { message: 'Card name must be at least 2 characters.' })
+      .max(50, { message: 'Card name must be less than 50 characters.' })
+      .refine((value) => value.replace(/\s/g, '').length > 0, {
+        message: 'Card name cannot be only whitespace.',
+      }),
+    type: z.enum(['Section', 'Chart'], {
+      errorMap: () => ({ message: 'Please select a card type' }),
     }),
-  type: z.enum(['Section', 'Chart'], {
-    errorMap: () => ({ message: 'Please select a card type' }),
-  }),
-  sheet: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
-})
+    sheet: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
+    chartType: z.enum(['Bar', 'Pie']).optional(),
+  })
+  .refine(
+    (data) => {
+      // Conditional validation
+      if (data.type === 'Chart') {
+        return !!data.sheet && !!data.chartType
+      }
+      return true
+    },
+    {
+      message: 'Sheet and Chart Type are required for Chart cards',
+      path: ['sheet'],
+    }
+  )
 
 export default function CreateCardDialog() {
   const dispatch = useDispatch()
   const { createCard: isOpen } = useSelector((state: RootState) => state.app.dialog)
 
   const { sheets } = useSelector((state: RootState) => state.sheet)
-  const { categories } = useSelector((state: RootState) => state.app)
+  const { categories, activeDashboard } = useSelector((state: RootState) => state.app)
 
   const sheetTreeData = categories
     .map((category: ICategory) => ({
@@ -51,13 +68,16 @@ export default function CreateCardDialog() {
     resolver: zodResolver(cardFormSchema),
     defaultValues: {
       name: '',
-      type: undefined,
+      type: 'Section',
       sheet: [],
+      chartType: undefined,
     },
   })
 
+  const cardType = form.watch('type')
+
   const onSubmit = (values: z.infer<typeof cardFormSchema>) => {
-    dispatch(createCard(values))
+    dispatch(createCard({ ...values, dashboardId: activeDashboard?.id }))
     dispatch(toggleDialog('createCard'))
     form.reset()
   }
@@ -66,6 +86,14 @@ export default function CreateCardDialog() {
     dispatch(toggleDialog('createCard'))
     form.reset()
   }
+
+  useEffect(() => {
+    return () => {
+      setTimeout(() => {
+        document.body.style.removeProperty('pointer-events')
+      }, 1500)
+    }
+  }, [])
 
   return (
     <Drawer
@@ -120,6 +148,30 @@ export default function CreateCardDialog() {
                   </FormItem>
                 )}
               />
+
+              {cardType === 'Chart' && (
+                <FormField
+                  control={form.control}
+                  name="chartType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chart Type</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl className="w-full">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select chart type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Bar">Bar Chart</SelectItem>
+                          <SelectItem value="Pie">Pie Chart</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

@@ -17,6 +17,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { useNavigate } from 'react-router'
+import { useDispatch } from 'react-redux'
+import { setActiveDashboard } from '@/state/reducers/app'
 
 export function NavDashboard({
   items,
@@ -30,8 +32,11 @@ export function NavDashboard({
 }) {
   const { isMobile } = useSidebar()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+
   const handleClick = (item: any) => {
-    navigate(`dashboard/${item.name}`)
+    dispatch(setActiveDashboard(item))
+    navigate('dashboard')
   }
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
