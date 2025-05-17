@@ -31,10 +31,6 @@ function Header() {
   const { activeDashboard } = useSelector((state: RootState) => state.app)
   const { activeSheet } = useSelector((state: RootState) => state.sheet)
 
-  const handleAddCard = (cardType: 'Section' | 'Chart') => {
-    dispatch(toggleDialog('createCard'))
-  }
-
   const getCurrentRouteName = () => {
     const path = window.location.pathname
 
@@ -76,25 +72,21 @@ function Header() {
       </div>
 
       <div className="px-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="">
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Add to Dashboard</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleAddCard('Section')}>
-              <LayoutGridIcon className="mr-2 h-4 w-4" />
-              <span>Section Card</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleAddCard('Chart')}>
-              <PieChartIcon className="mr-2 h-4 w-4" />
-              <span>Chart Card</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {currentRouteName === 'Dashboard' && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="">
+                <MoreHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => dispatch(toggleDialog('createCard'))}>
+                <LayoutGridIcon className="mr-2 h-4 w-4" />
+                <span>Create Card</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   )
