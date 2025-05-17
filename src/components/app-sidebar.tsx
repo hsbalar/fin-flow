@@ -39,7 +39,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { ICategory, IDashboard, toggleDialog } from '@/state/reducers/app'
 import { RootState } from '@/state/store'
-import { Sheet } from '@/state/reducers/sheet'
+import { Sheet } from '@/models'
 
 const data = {
   user: {
