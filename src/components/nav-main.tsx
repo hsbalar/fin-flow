@@ -14,9 +14,10 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
-import { Sheet, setActiveSheet } from '@/state/reducers/sheet'
+import { setActiveSheet } from '@/state/reducers/sheet'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router'
+import { Sheet } from '@/models'
 
 export function NavMain({
   items,

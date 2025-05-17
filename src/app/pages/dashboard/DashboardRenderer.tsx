@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { SectionCard } from '@/app/components/SectionCard'
 import BarChart from '@/app/charts/BarChart'
+import PieChart from '@/app/charts/PieChart'
 
 function DashboardRenderer() {
   const dispatch = useDispatch()
@@ -25,7 +26,7 @@ function DashboardRenderer() {
     let total = 0
     cardSheets.forEach((sheet: any) => {
       const sheetRecords = records[sheet.id] || {}
-      Object.entries(sheetRecords).forEach(([columnId, columnData]) => {
+      Object.entries(sheetRecords).forEach(([_, columnData]) => {
         const columnTotal = (columnData as any[]).reduce((sum, column) => {
           return sum + (Number(column.value) || 0)
         }, 0)
@@ -37,16 +38,22 @@ function DashboardRenderer() {
   }
 
   const renderChartCard = (card: any) => {
-    const cardSheets = sheets.filter((sheet: any) => card.sheet.includes(sheet.categoryId))
+    const cardSheets = sheets.filter((sheet: any) => {
+      return card.sheet.includes(sheet.categoryId) || card.sheet.includes(sheet.id)
+    })
     let data: any = []
+    console.log('cardSheets', cardSheets)
     cardSheets.forEach((sheet: any) => {
       const sheetRecords = records[sheet.id] || {}
-      Object.entries(sheetRecords).forEach(([columnId, columnData]: any) => {
+      Object.entries(sheetRecords).forEach(([_, columnData]: any) => {
         data = [...data, ...columnData]
       })
     })
-
-    return <BarChart data={data} />
+    console.log(data, card.chartType)
+    if (card.chartType === 'Pie') {
+      return <PieChart data={data} cardName={card.name} />
+    }
+    return <BarChart data={data} cardName={card.name} />
   }
 
   if (dashboardCards.length === 0) {
