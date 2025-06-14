@@ -10,17 +10,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { Record } from '@/models'
+import { Record, Card as CardModel } from '@/models'
 import getColor from '@/lib/getColor'
 
 const PieChartComponent = ({
   data,
-  cardName,
+  cardInfo,
   showLegend = false,
   type = 'pieWithLabel',
 }: {
   data: Record[]
-  cardName?: string
+  cardInfo: CardModel
   type?: string
   showLegend?: boolean
 }) => {
@@ -47,7 +47,7 @@ const PieChartComponent = ({
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>{cardName}</CardTitle>
+        <CardTitle>{cardInfo.name}</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">

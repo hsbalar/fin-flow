@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TreeSelect } from '@/app/components/tree-select/tree-select'
 import { createCard } from '@/state/reducers/card'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const cardFormSchema = z
   .object({
@@ -27,14 +28,15 @@ const cardFormSchema = z
     type: z.enum(['Section', 'Chart'], {
       errorMap: () => ({ message: 'Please select a card type' }),
     }),
-    sheet: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
+    sheetIds: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
     chartType: z.enum(['Bar', 'Pie']).optional(),
+    showLabel: z.boolean().optional(),
   })
   .refine(
     (data) => {
       // Conditional validation
       if (data.type === 'Chart') {
-        return !!data.sheet && !!data.chartType
+        return !!data.sheetIds && !!data.chartType
       }
       return true
     },
@@ -69,8 +71,9 @@ export default function CreateCardDialog() {
     defaultValues: {
       name: '',
       type: 'Section',
-      sheet: [],
+      sheetIds: [],
       chartType: undefined,
+      showLabel: false,
     },
   })
 
@@ -173,9 +176,27 @@ export default function CreateCardDialog() {
                 />
               )}
 
+              {cardType === 'Chart' && (
+                <FormField
+                  control={form.control}
+                  name="showLabel"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-0.5 leading-none">
+                        <FormLabel>Show Label</FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
                 control={form.control}
-                name="sheet"
+                name="sheetIds"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Select Sheet</FormLabel>

@@ -29,3 +29,12 @@ export interface SheetState {
   sheets: Array<Sheet>
   records: RecordBySheet
 }
+
+export interface Card {
+  id: string
+  dashboardId?: string
+  name: string
+  type: 'Section' | 'Chart'
+  chartType?: 'Bar' | 'Pie'
+  sheetIds: string[]
+}

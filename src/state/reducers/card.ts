@@ -1,14 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { getUniqueId } from '@/lib/utils'
-
-export interface Card {
-  id: string
-  dashboardId?: string
-  name: string
-  type: 'Section' | 'Chart'
-  chartType?: 'Bar' | 'Pie'
-  sheets: string[]
-}
+import { Card } from '@/models'
 
 export interface CardState {
   cards: Card[]

@@ -12,15 +12,8 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { toggleDialog } from '@/state/reducers/app'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { MoreHorizontalIcon, LayoutGridIcon, PieChartIcon } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { MoreHorizontalIcon, LayoutGridIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { RootState } from '@/state/store'
 
@@ -30,10 +23,9 @@ function Header() {
 
   const { activeDashboard } = useSelector((state: RootState) => state.app)
   const { activeSheet } = useSelector((state: RootState) => state.sheet)
+  const path = window.location.pathname
 
   const getCurrentRouteName = () => {
-    const path = window.location.pathname
-
     if (path.startsWith('/dashboard') && activeDashboard) {
       return activeDashboard.name
     }
@@ -46,6 +38,7 @@ function Header() {
   }
 
   const currentRouteName = getCurrentRouteName()
+  const isDashboard = path === '/dashboard'
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -72,7 +65,7 @@ function Header() {
       </div>
 
       <div className="px-4">
-        {currentRouteName === 'Dashboard' && (
+        {isDashboard && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="">

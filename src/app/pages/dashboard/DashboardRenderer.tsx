@@ -1,13 +1,12 @@
-import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppState, toggleDialog } from '@/state/reducers/app'
+import { toggleDialog } from '@/state/reducers/app'
 import EmptyDashboardPlaceholder from './EmptyDashboard'
 import { RootState } from '@/state/store'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { SectionCard } from '@/app/components/SectionCard'
 import BarChart from '@/app/charts/BarChart'
 import PieChart from '@/app/charts/PieChart'
+import { aggregateSheetData, aggregateSheetDataForCharts } from '@/app/utils/aggregation'
+import { Card, Sheet } from '@/models'
 
 function DashboardRenderer() {
   const dispatch = useDispatch()
@@ -19,41 +18,27 @@ function DashboardRenderer() {
     dispatch(toggleDialog('createCard'))
   }
 
-  const dashboardCards = cards.filter((card: any) => card.dashboardId === activeDashboard?.id)
+  const dashboardCards = cards.filter((card: Card) => card.dashboardId === activeDashboard?.id)
+  const dashboardCardsTypeSection = dashboardCards.filter((card: Card) => card.type === 'Section')
+  const dashboardCardsTypeChart = dashboardCards.filter((card: Card) => card.type === 'Chart')
 
-  const renderSectionCard = (card: any) => {
-    const cardSheets = sheets.filter((sheet: any) => card.sheet.includes(sheet.categoryId))
-    let total = 0
-    cardSheets.forEach((sheet: any) => {
-      const sheetRecords = records[sheet.id] || {}
-      Object.entries(sheetRecords).forEach(([_, columnData]) => {
-        const columnTotal = (columnData as any[]).reduce((sum, column) => {
-          return sum + (Number(column.value) || 0)
-        }, 0)
-        total += columnTotal
-      })
+  const renderSectionCard = (card: Card) => {
+    const cardSheets = sheets.filter((sheet: Sheet) => {
+      return card.sheetIds.includes(sheet.categoryId) || card.sheetIds.includes(sheet.id)
     })
-
-    return <SectionCard key={card.id} cardName={card.name} value={total} />
+    const total = aggregateSheetData(cardSheets, records)
+    return <SectionCard cardInfo={card} value={total} />
   }
 
-  const renderChartCard = (card: any) => {
-    const cardSheets = sheets.filter((sheet: any) => {
-      return card.sheet.includes(sheet.categoryId) || card.sheet.includes(sheet.id)
+  const renderChartCard = (card: Card) => {
+    const cardSheets = sheets.filter((sheet: Sheet) => {
+      return card.sheetIds.includes(sheet.categoryId) || card.sheetIds.includes(sheet.id)
     })
-    let data: any = []
-    console.log('cardSheets', cardSheets)
-    cardSheets.forEach((sheet: any) => {
-      const sheetRecords = records[sheet.id] || {}
-      Object.entries(sheetRecords).forEach(([_, columnData]: any) => {
-        data = [...data, ...columnData]
-      })
-    })
-    console.log(data, card.chartType)
+    const data = aggregateSheetDataForCharts(cardSheets, records)
     if (card.chartType === 'Pie') {
-      return <PieChart data={data} cardName={card.name} />
+      return <PieChart data={data} cardInfo={card} />
     }
-    return <BarChart data={data} cardName={card.name} />
+    return <BarChart data={data} cardInfo={card} />
   }
 
   if (dashboardCards.length === 0) {
@@ -63,11 +48,11 @@ function DashboardRenderer() {
   return (
     <>
       <div className="*:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card lg:px-4">
-        {dashboardCards.map((card: any) => (card.type === 'Section' ? renderSectionCard(card) : <></>))}
+        {dashboardCardsTypeSection.map((card: Card) => renderSectionCard(card))}
       </div>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          {dashboardCards.map((card: any) => (card.type === 'Chart' ? renderChartCard(card) : <></>))}
+          {dashboardCardsTypeChart.map((card: Card) => renderChartCard(card))}
         </div>
       </div>
     </>

@@ -2,6 +2,8 @@ import { Bar, BarChart, CartesianGrid, LabelList, XAxis, XAxisProps, YAxis } fro
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { Card as CardModel, Record } from '@/models'
+import { LayoutType } from 'recharts/types/util/types'
 
 const chartConfig = {
   value: {
@@ -10,7 +12,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function BarChartComponent({ data, cardName, layout = 'vertical', showLabel = true }: any) {
+export default function BarChartComponent({
+  data,
+  cardInfo,
+  layout = 'vertical',
+  showLabel = true,
+}: {
+  data: Record[]
+  cardInfo: CardModel
+  layout?: LayoutType
+  showLabel?: boolean
+}) {
   const axisProp = {
     tickLine: false,
     tickMargin: 10,
@@ -26,7 +38,7 @@ export default function BarChartComponent({ data, cardName, layout = 'vertical',
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{cardName}</CardTitle>
+        <CardTitle>{cardInfo.name}</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
       <CardContent>
