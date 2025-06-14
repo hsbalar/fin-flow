@@ -35,7 +35,7 @@ function DashboardRenderer() {
       return card.sheetIds.includes(sheet.categoryId) || card.sheetIds.includes(sheet.id)
     })
     const data = aggregateSheetDataForCharts(cardSheets, records)
-    if (card.chartType === 'Pie') {
+    if (card.config?.chartType === 'Pie' || card.config?.chartType === 'PieDonut') {
       return <PieChart data={data} cardInfo={card} />
     }
     return <BarChart data={data} cardInfo={card} />

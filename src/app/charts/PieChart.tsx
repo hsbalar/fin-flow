@@ -1,5 +1,5 @@
 import { TrendingUp } from 'lucide-react'
-import { Pie, PieChart, Cell, Label, LabelList, PieLabel } from 'recharts'
+import { Pie, PieChart, Cell, Label, LabelList } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -13,19 +13,9 @@ import {
 import { Record, Card as CardModel } from '@/models'
 import getColor from '@/lib/getColor'
 
-const PieChartComponent = ({
-  data,
-  cardInfo,
-  showLegend = false,
-  type = 'pieWithLabel',
-}: {
-  data: Record[]
-  cardInfo: CardModel
-  type?: string
-  showLegend?: boolean
-}) => {
+const PieChartComponent = ({ data, cardInfo }: { data: Record[]; cardInfo: CardModel }) => {
   const chartColors = data.map((_, index) => getColor(index, data.length))
-
+  const { showLegend, chartType, showLabel } = cardInfo.config || {}
   const chartConfig: ChartConfig = Object.fromEntries(
     data.map((item, index) => [
       item.name,
@@ -41,8 +31,8 @@ const PieChartComponent = ({
   const total = chartData.reduce((sum, item) => sum + item.value, 0)
   const pieProps = {
     dataKey: 'value',
-    ...(type === 'pieWithLabel' ? { label: true } : {}),
-    ...(type === 'pieDonutWithLabel' ? { nameKey: 'name', innerRadius: 60, strokeWidth: 5 } : {}),
+    ...(chartType === 'Pie' ? { label: showLabel } : {}),
+    ...(chartType === 'PieDonut' ? { nameKey: 'name', innerRadius: 60, strokeWidth: 5 } : {}),
   }
   return (
     <Card className="flex flex-col">
@@ -58,7 +48,7 @@ const PieChartComponent = ({
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={chartConfig[entry.name]?.color || 'var(--chart-1)'} />
               ))}
-              {type === 'pieWithLabel' && (
+              {showLabel && (
                 <LabelList
                   dataKey="name"
                   className="fill-background"
@@ -67,7 +57,7 @@ const PieChartComponent = ({
                   formatter={(value: keyof typeof chartConfig) => chartConfig[value]?.label}
                 />
               )}
-              {type === 'pieDonutWithLabel' && (
+              {chartType === 'PieDonut' && (
                 <Label
                   content={({ viewBox }) => {
                     if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {

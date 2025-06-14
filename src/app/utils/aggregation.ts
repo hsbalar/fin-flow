@@ -14,7 +14,11 @@ export function aggregateSheetDataForCharts(sheets: any[], records: any): any[] 
   return sheets.reduce((data: any[], sheet: any) => {
     const sheetRecords = records[sheet.id] || {}
     Object.entries(sheetRecords).forEach(([, columnData]: any) => {
-      data.push(...columnData)
+      data.push(
+        ...columnData
+          .filter((row: any) => row.name.trim() !== '')
+          .map((row: any) => ({ ...row, value: Number(row.value) || 0 }))
+      )
     })
     return data
   }, [])

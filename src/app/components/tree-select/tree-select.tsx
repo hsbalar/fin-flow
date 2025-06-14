@@ -37,7 +37,7 @@ export const TreeSelect = ({
         <Button
           variant="outline"
           className={cn(
-            'h-fit min-h-10 items-center justify-end py-1.5 pl-1.5 pr-0 hover:bg-background',
+            'h-fit min-h-9 items-center justify-end py-1.5 pl-1.5 pr-0 hover:bg-background opacity-80',
             invalid && 'border-error-500',
             className,
             value.length > 1 && 'h-auto'
@@ -73,7 +73,7 @@ export const TreeSelect = ({
                 </Badge>
               ))
             ) : (
-              <span className="ml-1 text-sm">Placeholder</span>
+              <span className="ml-1 text-sm text-muted-foreground">Select</span>
             )}
           </div>
 
@@ -99,8 +99,7 @@ export const TreeSelect = ({
               <X className="size-4" />
             </div>
           )}
-          <span className="w-px self-stretch bg-border" />
-          <div className="flex items-center px-2 hover:text-muted-foreground">
+          <div className="flex items-center px-3 text-muted-foreground opacity-80">
             <ChevronDown size={16} />
           </div>
         </Button>

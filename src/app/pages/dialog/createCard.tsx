@@ -9,7 +9,7 @@ import { ICategory, toggleDialog } from '@/state/reducers/app'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TreeSelect } from '@/app/components/tree-select/tree-select'
 import { createCard } from '@/state/reducers/card'
@@ -29,14 +29,20 @@ const cardFormSchema = z
       errorMap: () => ({ message: 'Please select a card type' }),
     }),
     sheetIds: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
-    chartType: z.enum(['Bar', 'Pie']).optional(),
-    showLabel: z.boolean().optional(),
+    config: z
+      .object({
+        chartType: z.enum(['Bar', 'Pie', 'PieDonut']).optional(),
+        showLabel: z.boolean().optional(),
+        showLegend: z.boolean().optional(),
+        layout: z.enum(['horizontal', 'vertical']).optional(),
+      })
+      .optional(),
   })
   .refine(
     (data) => {
       // Conditional validation
       if (data.type === 'Chart') {
-        return !!data.sheetIds && !!data.chartType
+        return !!data.sheetIds && !!data.config?.chartType
       }
       return true
     },
@@ -72,12 +78,17 @@ export default function CreateCardDialog() {
       name: '',
       type: 'Section',
       sheetIds: [],
-      chartType: undefined,
-      showLabel: false,
+      config: {
+        chartType: 'Bar',
+        showLabel: false,
+        showLegend: false,
+        layout: 'horizontal',
+      },
     },
   })
 
   const cardType = form.watch('type')
+  const chartType = form.watch('config.chartType')
 
   const onSubmit = (values: z.infer<typeof cardFormSchema>) => {
     dispatch(createCard({ ...values, dashboardId: activeDashboard?.id }))
@@ -132,70 +143,6 @@ export default function CreateCardDialog() {
 
               <FormField
                 control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Card Type</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select card type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Section">Section</SelectItem>
-                        <SelectItem value="Chart">Chart</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {cardType === 'Chart' && (
-                <FormField
-                  control={form.control}
-                  name="chartType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chart Type</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <FormControl className="w-full">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select chart type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Bar">Bar Chart</SelectItem>
-                          <SelectItem value="Pie">Pie Chart</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {cardType === 'Chart' && (
-                <FormField
-                  control={form.control}
-                  name="showLabel"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center gap-4">
-                      <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <div className="space-y-0.5 leading-none">
-                        <FormLabel>Show Label</FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <FormField
-                control={form.control}
                 name="sheetIds"
                 render={({ field }) => (
                   <FormItem>
@@ -214,6 +161,124 @@ export default function CreateCardDialog() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Card Type</FormLabel>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="flex"
+                    >
+                      <ToggleGroupItem value="Section" className="px-4 py-2">
+                        Section
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="Chart" className="px-4 py-2">
+                        Chart
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {cardType === 'Chart' && (
+                <FormField
+                  control={form.control}
+                  name="config.chartType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chart Type</FormLabel>
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="flex"
+                      >
+                        <ToggleGroupItem value="Bar" className="px-4 py-2">
+                          Bar
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="Pie" className="px-4 py-2">
+                          Pie
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="PieDonut" className="px-10 py-2">
+                          Pie with Donut
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {cardType === 'Chart' && chartType === 'Bar' && (
+                <FormField
+                  control={form.control}
+                  name="config.layout"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bar Chart Layout</FormLabel>
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="flex"
+                      >
+                        <ToggleGroupItem value="horizontal" className="px-4 py-2">
+                          Horizontal
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="vertical" className="px-4 py-2">
+                          Vertical
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {cardType === 'Chart' && (
+                <FormField
+                  control={form.control}
+                  name="config.showLabel"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-0.5 leading-none">
+                        <FormLabel>Show Label</FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {cardType === 'Chart' && (
+                <FormField
+                  control={form.control}
+                  name="config.showLegend"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-4">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <div className="space-y-0.5 leading-none">
+                        <FormLabel>Show Legend</FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <div className="pt-4 flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={handleClose}>

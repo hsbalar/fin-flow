@@ -1,9 +1,15 @@
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis, XAxisProps, YAxis } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
 import { Card as CardModel, Record } from '@/models'
-import { LayoutType } from 'recharts/types/util/types'
 
 const chartConfig = {
   value: {
@@ -12,17 +18,8 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function BarChartComponent({
-  data,
-  cardInfo,
-  layout = 'vertical',
-  showLabel = true,
-}: {
-  data: Record[]
-  cardInfo: CardModel
-  layout?: LayoutType
-  showLabel?: boolean
-}) {
+export default function BarChartComponent({ data, cardInfo }: { data: Record[]; cardInfo: CardModel }) {
+  const { layout, showLegend } = cardInfo.config || {}
   const axisProp = {
     tickLine: false,
     tickMargin: 10,
@@ -48,8 +45,8 @@ export default function BarChartComponent({
             data={data}
             layout={layout}
             margin={{
-              ...(showLabel && layout === 'vertical' && { right: 16 }),
-              ...(showLabel && layout === 'horizontal' && { top: 20 }),
+              ...(layout === 'vertical' && { right: 16 }),
+              ...(layout === 'horizontal' && { top: 20 }),
             }}
           >
             <CartesianGrid vertical={layout === 'vertical'} />
@@ -75,6 +72,7 @@ export default function BarChartComponent({
                 fontSize={12}
               />
             </Bar>
+            {showLegend && <ChartLegend content={<ChartLegendContent />} />}
           </BarChart>
         </ChartContainer>
       </CardContent>
