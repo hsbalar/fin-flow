@@ -34,10 +34,11 @@ export interface Card {
   id: string
   dashboardId?: string
   name: string
+  description: string
   type: 'Section' | 'Chart'
   sheetIds: string[]
-  config?: {
-    chartType?: 'Bar' | 'Pie' | 'PieDonut'
+  config: {
+    chartType: 'Bar' | 'Pie' | 'PieDonut' | 'Radial'
     layout?: 'horizontal' | 'vertical'
     showLabel?: boolean
     showLegend?: boolean

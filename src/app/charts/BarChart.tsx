@@ -36,7 +36,7 @@ export default function BarChartComponent({ data, cardInfo }: { data: Record[]; 
     <Card>
       <CardHeader>
         <CardTitle>{cardInfo.name}</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        {cardInfo.description && <CardDescription>{cardInfo.description}</CardDescription>}
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -72,7 +72,6 @@ export default function BarChartComponent({ data, cardInfo }: { data: Record[]; 
                 fontSize={12}
               />
             </Bar>
-            {showLegend && <ChartLegend content={<ChartLegendContent />} />}
           </BarChart>
         </ChartContainer>
       </CardContent>

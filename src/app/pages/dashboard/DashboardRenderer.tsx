@@ -6,7 +6,8 @@ import { SectionCard } from '@/app/components/SectionCard'
 import BarChart from '@/app/charts/BarChart'
 import PieChart from '@/app/charts/PieChart'
 import { aggregateSheetData, aggregateSheetDataForCharts } from '@/app/utils/aggregation'
-import { Card, Sheet } from '@/models'
+import { Card, Record, Sheet } from '@/models'
+import { RadialChartComponent } from '@/app/charts/RadialChart'
 
 function DashboardRenderer() {
   const dispatch = useDispatch()
@@ -35,10 +36,17 @@ function DashboardRenderer() {
       return card.sheetIds.includes(sheet.categoryId) || card.sheetIds.includes(sheet.id)
     })
     const data = aggregateSheetDataForCharts(cardSheets, records)
-    if (card.config?.chartType === 'Pie' || card.config?.chartType === 'PieDonut') {
-      return <PieChart data={data} cardInfo={card} />
+    const chartComponents: { [key: string]: React.ComponentType<{ data: Record[]; cardInfo: Card }> } = {
+      Bar: BarChart,
+      Pie: PieChart,
+      PieDonut: PieChart,
+      Radial: RadialChartComponent,
     }
-    return <BarChart data={data} cardInfo={card} />
+
+    const chartType = card.config.chartType
+    const ChartComponent = chartComponents[chartType]
+
+    return <ChartComponent data={data} cardInfo={card} />
   }
 
   if (dashboardCards.length === 0) {

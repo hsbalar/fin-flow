@@ -25,13 +25,14 @@ const cardFormSchema = z
       .refine((value) => value.replace(/\s/g, '').length > 0, {
         message: 'Card name cannot be only whitespace.',
       }),
+    description: z.string().optional(),
     type: z.enum(['Section', 'Chart'], {
       errorMap: () => ({ message: 'Please select a card type' }),
     }),
     sheetIds: z.array(z.string()).min(1, { message: 'Please select at least one sheet' }),
     config: z
       .object({
-        chartType: z.enum(['Bar', 'Pie', 'PieDonut']).optional(),
+        chartType: z.enum(['Bar', 'Pie', 'PieDonut', 'Radial']).optional(),
         showLabel: z.boolean().optional(),
         showLegend: z.boolean().optional(),
         layout: z.enum(['horizontal', 'vertical']).optional(),
@@ -40,7 +41,6 @@ const cardFormSchema = z
   })
   .refine(
     (data) => {
-      // Conditional validation
       if (data.type === 'Chart') {
         return !!data.sheetIds && !!data.config?.chartType
       }
@@ -76,6 +76,7 @@ export default function CreateCardDialog() {
     resolver: zodResolver(cardFormSchema),
     defaultValues: {
       name: '',
+      description: '',
       type: 'Section',
       sheetIds: [],
       config: {
@@ -143,6 +144,20 @@ export default function CreateCardDialog() {
 
               <FormField
                 control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter card description" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="sheetIds"
                 render={({ field }) => (
                   <FormItem>
@@ -201,14 +216,17 @@ export default function CreateCardDialog() {
                         onValueChange={field.onChange}
                         className="flex"
                       >
-                        <ToggleGroupItem value="Bar" className="px-4 py-2">
+                        <ToggleGroupItem value="Bar" className="px-3 py-2">
                           Bar
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="Pie" className="px-4 py-2">
+                        <ToggleGroupItem value="Pie" className="px-3 py-2">
                           Pie
                         </ToggleGroupItem>
                         <ToggleGroupItem value="PieDonut" className="px-10 py-2">
                           Pie with Donut
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="Radial" className="px-4 py-2">
+                          Radial
                         </ToggleGroupItem>
                       </ToggleGroup>
                       <FormMessage />
@@ -244,7 +262,7 @@ export default function CreateCardDialog() {
                 />
               )}
 
-              {cardType === 'Chart' && (
+              {cardType === 'Chart' && chartType !== 'Radial' && (
                 <FormField
                   control={form.control}
                   name="config.showLabel"
@@ -262,7 +280,7 @@ export default function CreateCardDialog() {
                 />
               )}
 
-              {cardType === 'Chart' && (
+              {cardType === 'Chart' && chartType !== 'Radial' && (
                 <FormField
                   control={form.control}
                   name="config.showLegend"
